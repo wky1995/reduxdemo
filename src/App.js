@@ -7,10 +7,22 @@ class App extends PureComponent {
     this.setState(store.getState());
   };
   onChange = e => {
-    console.log(e.target.value);
     const action = {
       type: "changeInput",
       value: e.target.value
+    };
+    store.dispatch(action);
+  };
+  AddClick = () => {
+    const action = {
+      type: "addItem"
+    };
+    store.dispatch(action);
+  };
+  deleteItem = (index) => {
+    const action = {
+      type: "deleteItem"
+      index
     };
     store.dispatch(action);
   };
@@ -23,13 +35,17 @@ class App extends PureComponent {
         <div>
           <Input onChange={this.onChange} />
           <Input placeholder={this.state.inputValue} />
-          <Button onClick={this.onClick}> 提交</Button>
+          <Button onClick={this.AddClick}>增加</Button>
         </div>
         <div>
           <List
             bordered
             dataSource={this.state.list}
-            renderItem={item => <List.Item>{item.name}</List.Item>}
+            renderItem={(item, index) => (
+              <List.Item onClick={this.deleteItem.bind(this, index)}>
+                {item}
+              </List.Item>
+            )}
           />
         </div>
       </div>
