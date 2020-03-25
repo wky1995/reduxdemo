@@ -1,29 +1,36 @@
-import { Button, Input, List } from "antd";
 import React, { PureComponent } from "react";
 import store from "./store/store";
+import TodolistUI from "./UIComponent/TodolistUI";
+import axios from "axios";
+import {
+  changeInputAction,
+  addItemAction,
+  deleteItemAction,
+  getListAction
+} from "./store/actionCreator";
 
 class App extends PureComponent {
+  componentDidMount() {
+    axios.get("http://localhost:8000/list").then(res => {
+      const list = res.data.list;
+      const action = getListAction(list);
+      store.dispatch(action);
+    });
+  }
+
   storeChange = () => {
     this.setState(store.getState());
   };
   onChange = e => {
-    const action = {
-      type: "changeInput",
-      value: e.target.value
-    };
+    const action = changeInputAction(e.target.value);
     store.dispatch(action);
   };
   AddClick = () => {
-    const action = {
-      type: "addItem"
-    };
+    const action = addItemAction();
     store.dispatch(action);
   };
-  deleteItem = (index) => {
-    const action = {
-      type: "deleteItem"
-      index
-    };
+  deleteItem = index => {
+    const action = deleteItemAction(index);
     store.dispatch(action);
   };
 
@@ -31,24 +38,13 @@ class App extends PureComponent {
     this.state = store.getState();
     store.subscribe(this.storeChange);
     return (
-      <div>
-        <div>
-          <Input onChange={this.onChange} />
-          <Input placeholder={this.state.inputValue} />
-          <Button onClick={this.AddClick}>增加</Button>
-        </div>
-        <div>
-          <List
-            bordered
-            dataSource={this.state.list}
-            renderItem={(item, index) => (
-              <List.Item onClick={this.deleteItem.bind(this, index)}>
-                {item}
-              </List.Item>
-            )}
-          />
-        </div>
-      </div>
+      <TodolistUI
+        inputValue={this.state.inputValue}
+        list={this.state.list}
+        onChange={this.onChange}
+        AddClick={this.AddClick}
+        deleteItem={this.deleteItem}
+      />
     );
   }
 }
